@@ -1,0 +1,15 @@
+[package]
+name = "date-time"
+version = "1.0.0"
+description = "A library helps to manuplation with date & time"
+repository = "https://github.com/toshakparmar/date-time-motoko.git"
+keywords = [
+  "date-time",
+  "date-time-motoko",
+  "motoko-date",
+  "motoko-time"
+]
+license = "MIT"
+
+[dependencies]
+base = "0.14.1"
