@@ -40,10 +40,6 @@ To install and use this package, follow these steps:
      mops add date-time
      ```
 
-   ```
-
-   ```
-
 2. **Import the Package**:
 
    ```motoko
