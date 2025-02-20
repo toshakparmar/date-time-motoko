@@ -1,6 +1,6 @@
 [package]
 name = "date-time"
-version = "1.0.0"
+version = "1.0.1"
 description = "A library helps to manuplation with date & time"
 repository = "https://github.com/toshakparmar/date-time-motoko"
 keywords = [
