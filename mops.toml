@@ -1,7 +1,7 @@
 [package]
 name = "date-time"
-version = "1.0.1"
-description = "The date-time Mops package provides comprehensive utilities for date and time manipulation in Motoko, including creation, formatting, arithmetic, comparison, and timezone handling without relying on the Time package."
+version = "1.0.2"
+description = "The date-time Mops package offers utilities for date and time manipulation in Motoko, including creation, formatting, arithmetic, comparison, and timezone handling."
 repository = "https://github.com/toshakparmar/date-time-motoko"
 keywords = [
   "date-time",
