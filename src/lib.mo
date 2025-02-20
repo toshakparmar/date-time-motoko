@@ -1,183 +1,273 @@
-import Nat "mo:base/Nat";
 import Int "mo:base/Int";
-import DateCreationParsing "./DateCreationParsing";
-import DateFormatting "./DateFormatting";
-import DateArithmetic "./DateArithmetic";
-import DateComparison "./DateComparison";
-import WeekMonthHandling "./WeekMonthUtils";
-import RelativeTime "./RelativeTime";
-import DateUtils "./DateUtils";
-import TimeUtils "./TimeUtils";
+import Option "mo:base/Option";
+import Array "mo:base/Array";
+import DateCreation "core/DateCreation";
+import DateFormat "core/DateFormat";
+import Arithmetic "operations/Arithmetic";
+import Comparision "operations/Comparision";
+import Relative "operations/Relative";
+import DateUtils "utils/DateUtils";
+import TimeUtils "utils/TimeUtils";
+import CalendarUtils "utils/CalendarUtils";
+import Types "types/Types";
 
-actor {
+module {
+    public class DateTime() {
 
-    public type Date = (Int, Int, Int);
+        // Date Creation Operations
+        public func now() : async Types.DateResult {
+            await DateCreation.now();
+        };
 
-    // Test Functions of DateCreationParsing Module
-    public func now() : async Text {
-        let currentTime = await DateCreationParsing.now();
-        let (year, month, day, hour, minute, second) = currentTime;
-        return "now(): " # Int.toText(year) # "-" # Int.toText(month) # "-" # Int.toText(day) # " " # Int.toText(hour) # ":" # Int.toText(minute) # ":" # Int.toText(second);
-    };
-    public func fromTimestamp({ timestamp : Int }) : async (Int, Int, Int, Int, Int, Int) {
-        await DateCreationParsing.fromTimestamp(timestamp);
-    };
-    public func toTimestamp({
-        year : Int;
-        month : Int;
-        day : Int;
-        hour : Int;
-        min : Int;
-        sec : Int;
-    }) : async Int {
-        await DateCreationParsing.toTimestamp(year, month, day, hour, min, sec);
-    };
+        public func fromTimestamp(timestamp : Int) : Types.DateResult {
+            DateCreation.fromTimestamp(timestamp);
+        };
 
-    public func isValidDate({ year : Int; month : Int; day : Int }) : async Bool {
-        await DateCreationParsing.isValidDate(year, month, day);
-    };
-    public func isLeapYear({ year : Int }) : async Bool {
-        await DateCreationParsing.isLeapYear(year);
-    };
+        public func toTimestamp(date : Types.DateTimeComponents) : Types.Result<Int> {
+            DateCreation.toTimestamp(date);
+        };
 
-    // Test Functions of DateFormatting Module
-    public func formatDate({ year : Int; month : Int; day : Int; format : Text }) : async Text {
-        await DateFormatting.formatDate(year, month, day, format);
-    };
-    public func toISOFormat({ year : Int; month : Int; day : Int }) : async Text {
-        await DateFormatting.toISOFormat(year, month, day);
-    };
-    public func getWeekday({ year : Int; month : Int; day : Int }) : async Text {
-        await DateFormatting.getWeekday(year, month, day);
-    };
-    public func getDayOfYear({ year : Int; month : Int; day : Int }) : async Int {
-        await DateFormatting.getDayOfYear(year, month, day);
-    };
+        public func isValidDate(date : Types.Date) : Types.Result<Bool> {
+            DateCreation.isValidDate(date);
+        };
 
-    // Test Functions of DateArithmetic Module
-    public func addDays({ year : Nat; month : Nat; day : Nat; n : Nat }) : async Date {
-        await DateArithmetic.addDays(year, month, day, n);
-    };
-    public func subtractDays({ year : Nat; month : Nat; day : Nat; n : Nat }) : async Date {
-        await DateArithmetic.subtractDays(year, month, day, n);
-    };
-    public func addMonths({ year : Nat; month : Nat; day : Nat; n : Nat }) : async Date {
-        await DateArithmetic.addMonths(year, month, day, n);
-    };
-    public func subtractMonths({ year : Nat; month : Nat; day : Nat; n : Nat }) : async Date {
-        await DateArithmetic.subtractMonths(year, month, day, n);
-    };
-    public func addYears({ year : Nat; month : Nat; day : Nat; n : Nat }) : async Date {
-        await DateArithmetic.addYears(year, month, day, n);
-    };
-    public func subtractYears({ year : Nat; month : Nat; day : Nat; n : Nat }) : async Date {
-        await DateArithmetic.subtractYears(year, month, day, n);
-    };
-    public func startOfDays({ year : Nat; month : Nat; day : Nat }) : async (Nat, Nat, Nat, Nat, Nat, Nat) {
-        await DateArithmetic.startOfDay(year, month, day);
-    };
-    public func endOfDays({ year : Nat; month : Nat; day : Nat }) : async (Nat, Nat, Nat, Nat, Nat, Nat) {
-        await DateArithmetic.endOfDay(year, month, day);
-    };
+        public func isLeapYear(year : Int) : Bool {
+            DateCreation.isLeapYear(year);
+        };
 
-    // Test Functions of DateComparison Module
-    public func isBefore({
-        year1 : Int;
-        month1 : Int;
-        day1 : Int;
-        year2 : Int;
-        month2 : Int;
-        day2 : Int;
-    }) : async Bool {
-        await DateComparison.isBefore(year1, month1, day1, year2, month2, day2);
-    };
-    public func isAfter({
-        year1 : Int;
-        month1 : Int;
-        day1 : Int;
-        year2 : Int;
-        month2 : Int;
-        day2 : Int;
-    }) : async Bool {
-        await DateComparison.isAfter(year1, month1, day1, year2, month2, day2);
-    };
-    public func isEqual({
-        year1 : Int;
-        month1 : Int;
-        day1 : Int;
-        year2 : Int;
-        month2 : Int;
-        day2 : Int;
-    }) : async Bool {
-        await DateComparison.isEqual(year1, month1, day1, year2, month2, day2);
-    };
-    public func dateDifference({
-        year1 : Int;
-        month1 : Int;
-        day1 : Int;
-        year2 : Int;
-        month2 : Int;
-        day2 : Int;
-        unit : Text;
-    }) : async Int {
-        await DateComparison.dateDifference(year1, month1, day1, year2, month2, day2, unit);
-    };
 
-    // Test Functions of WeekMonthHandling Module
-    public func startOfWeek({ year : Int; month : Int; day : Int }) : async Date {
-        await WeekMonthHandling.startOfWeek(year, month, day);
-    };
-    public func endOfWeek({ year : Int; month : Int; day : Int }) : async Date {
-        await WeekMonthHandling.endOfWeek(year, month, day);
-    };
-    public func getMonthName({ month : Int }) : async Text {
-        await WeekMonthHandling.getMonthName(month);
-    };
-    public func getDaysInMonthUtil({ year : Int; month : Int }) : async Int {
-        await WeekMonthHandling.getDaysInMonth(year, month);
-    };
+        // Formatting Operations
+        public func format(
+            params : {
+                date : Types.Date;
+                format : Types.DateFormat;
+            }
+        ) : Types.FormattingResult {
+            DateFormat.formatDate(params.date, params.format);
+        };
 
-    // Test Functions of RelativeTime Module
-    public func timeUntil({ year : Int; month : Int; day : Int }) : async Text {
-        await RelativeTime.timeUntil(year, month, day);
-    };
-    public func toLocaleString({
-        year : Int;
-        month : Int;
-        day : Int;
-        locale : Text;
-    }) : async Text {
-        await RelativeTime.toLocaleString(year, month, day, locale);
-    };
-    public func timeAgo({ year : Int; month : Int; day : Int }) : async Text {
-        await RelativeTime.timeAgo(year, month, day);
-    };
+        public func toISO(date : Types.Date) : Types.FormattingResult {
+            DateFormat.toISOFormat(date);
+        };
 
-    // Test Functions of DateUtils Module
-    public func cloneDate({ year : Int; month : Int; day : Int }) : async Date {
-        await DateUtils.cloneDate(year, month, day);
-    };
-    public func minDate({ dates : [(Int, Int, Int)] }) : async ?Date {
-        await DateUtils.minDate(dates);
-    };
-    public func maxDate({ dates : [(Int, Int, Int)] }) : async ?Date {
-        await DateUtils.maxDate(dates);
-    };
-    public func isWeekend({ year : Int; month : Int; day : Int }) : async ?Bool {
-        await DateUtils.isWeekend(year, month, day);
-    };
+        public func getWeekday(date : Types.Date) : Types.WeekDayResult {
+            DateFormat.getWeekday(date);
+        };
 
-    // Test Functions of TimeUtils Module
-    public func getCurrentTime(use12Hour : ?Bool) : async Text {
-        await TimeUtils.getCurrentTime(use12Hour);
-    };
-    public func getTimeInTimezone({ timezone : Text; use12Hour : ?Bool }) : async Text {
-        await TimeUtils.getTimeInTimezone(timezone, use12Hour);
-    };
-    public func getDateTimeInTimezone({ timezone : Text; use12Hour : ?Bool }) : async Text {
-        await TimeUtils.getDateTimeInTimezone(timezone, use12Hour);
-    };
-    public func getAvailableTimezones() : async [Text] {
-        await TimeUtils.getAvailableTimezones();
+        public func getDayOfYear(date : Types.Date) : Types.Result<Int> {
+            DateFormat.getDayOfYear(date);
+        };
+
+        // Arithmetic Operations
+        public func addTime(
+            params : {
+                time1: Types.Time;
+                time2: Types.Time;
+            }
+        ) : Types.TimeResult {
+            switch (Arithmetic.addTimes(params.time1, params.time2)) {
+                case (#Ok(time)) #Ok({
+                    hour = time.hour;
+                    minute = time.minute;
+                    second = time.second;
+                    format = #Hour24;
+                    timezone = null;
+                });
+                case (#Err(e)) #Err(e);
+            };
+        };
+
+        public func add(
+            params : {
+                date : Types.Date;
+                amount : Int;
+                unit : Types.TimeUnit;
+            }
+        ) : Types.ArithmeticResult {
+            switch (params.unit) {
+                case (#Day) Arithmetic.addDays(params.date, params.amount);
+                case (#Month) Arithmetic.addMonths(params.date, params.amount);
+                case (#Year) Arithmetic.addYears(params.date, params.amount);
+                case _ #Err(#InvalidDate("Unsupported time unit"));
+            };
+        };
+
+        public func subtractTimes(time1: Types.Time, time2: Types.Time) : Types.Result<Types.Time> {
+            switch (Arithmetic.subtractTime(time1, time2)) {
+                case (#Ok(time)) #Ok(time);
+                case (#Err(e)) #Err(e);
+            };
+        };
+
+        public func subtract(
+            params : {
+                date : Types.Date;
+                amount : Int;
+                unit : Types.TimeUnit;
+            }
+        ) : Types.ArithmeticResult {
+           switch (params.unit) {
+                case (#Day) Arithmetic.subtractDays(params.date, params.amount);
+                case (#Month) Arithmetic.subtractMonths(params.date, params.amount);
+                case (#Year) Arithmetic.subtractYears(params.date, params.amount);
+                case _ #Err(#InvalidDate("Unsupported time unit"));
+            };
+        };
+
+        public func modify(
+            params : {
+                date : Types.Date;
+                amount : Int;
+                unit : Types.TimeUnit;
+            }
+        ) : async Types.ArithmeticResult {
+            switch (params.unit) {
+                case (#Day) Arithmetic.addDays(params.date, params.amount);
+                case (#Month) Arithmetic.addMonths(params.date, params.amount);
+                case (#Year) Arithmetic.addYears(params.date, params.amount);
+                case _ #Err(#InvalidDate("Unsupported time unit"));
+            };
+        };
+
+
+        // Comparison Operations
+        public func compare(date1 : Types.Date, date2 : Types.Date) : Types.ComparisonResult {
+            Comparision.compare(date1, date2);
+        };
+
+        public func difference(date1 : Types.Date, date2 : Types.Date) : Types.DateDifference {
+            Comparision.getDifference(date1, date2);
+        };
+
+        public func dateDifference(
+            params : {
+                date1 : Types.Date;
+                date2 : Types.Date;
+                unit : Types.TimeUnit;
+            }
+        ) : Int {
+            Comparision.dateDifference(params.date1, params.date2, params.unit);
+        };
+
+        public func isBefore(date1 : Types.Date, date2 : Types.Date) : Bool {
+            Comparision.isBefore(date1, date2);
+        };
+
+        public func isAfter(date1 : Types.Date, date2 : Types.Date) : Bool {
+            Comparision.isAfter(date1, date2);
+        };
+
+        public func isEqual(date1 : Types.Date, date2 : Types.Date) : Bool {
+            Comparision.isEqual(date1, date2);
+        };
+
+
+        // Calendar Utility Operations
+        public func weekBounds(date : Types.Date) : async {
+            start : Types.CalendarResult<Types.Date>;
+            end : Types.CalendarResult<Types.Date>;
+        } {
+            {
+                start = await CalendarUtils.startOfWeek(date);
+                end = await CalendarUtils.endOfWeek(date);
+            };
+        };
+
+        public func monthInfo(year : Int, month : Int) : Types.CalendarResult<Types.MonthInfo> {
+            CalendarUtils.getMonthInfo(year, month);
+        };
+
+        public func daysInMonth(year : Int, month : Int) : Int {
+            CalendarUtils.getDaysInMonth(year, month);
+        };
+
+
+        // Relative Time Operations
+        public func timeAgo(
+            params : {
+                date : Types.Date;
+                style : ?Types.RelativeTimeStyle;
+            }
+        ) : async Types.Result<Text> {
+            await Relative.timeAgo(params.date, Option.get(params.style, #AutoStyle));
+        };
+
+        public func timeUntil(
+            params : {
+                date : Types.Date;
+                style : ?Types.RelativeTimeStyle;
+            }
+        ) : async Types.Result<Text> {
+            await Relative.timeUntil(params.date, Option.get(params.style, #AutoStyle));
+        };
+
+        public func toLocaleString(
+            params : {
+                date : Types.Date;
+                locale : Types.Locale;
+            }
+        ) : async Types.Result<Text> {
+            await Relative.toLocaleString(params.date, params.locale);
+        };
+
+
+        // Time Operations
+        public func getCurrentTime(format : ?Types.TimeFormat) : async Types.TimeResult {
+            await TimeUtils.getCurrentTime(format);
+        };
+
+        public func getTimeInZone(
+            params : {
+                timezone : Text;
+                format : ?Types.TimeFormat;
+            }
+        ) : async Types.TimeResult {
+            await TimeUtils.getTimeInTimezone(params.timezone, params.format);
+        };
+
+        public func getDateTimeInZone(
+            params : {
+                timezone : Text;
+                format : ?Types.TimeFormat;
+            }
+        ) : async Types.DateTimeStringResult {
+            await TimeUtils.getDateTimeInTimezone(params.timezone, params.format);
+        };
+
+        public func timezones() : async [Types.TimezoneInfo] {
+            let zones = await TimeUtils.getAvailableTimezones();
+            Array.map(zones, func(zone : Text) : Types.TimezoneInfo = { abbreviation = zone; name = zone; offsetSeconds = 0 });
+        };
+
+        // Date Utility Operations
+        public func findMinMaxDates(dates : [Types.Date]) : {
+            min : Types.Result<Types.Date>;
+            max : Types.Result<Types.Date>;
+        } {
+            {
+                min = switch (DateUtils.minDate(dates)) {
+                    case (#Ok(null)) #Err(#InvalidDate("No minimum date found"));
+                    case (#Ok(?date)) #Ok(date);
+                    case (#Err(e)) #Err(e);
+                };
+                max = switch (DateUtils.maxDate(dates)) {
+                    case (#Ok(null)) #Err(#InvalidDate("No maximum date found"));
+                    case (#Ok(?date)) #Ok(date);
+                    case (#Err(e)) #Err(e);
+                };
+            };
+        };
+
+        public func isWeekend(date : Types.Date) : Types.Result<Bool> {
+            switch (DateUtils.isWeekend(date)) {
+                case (#Ok(?value)) #Ok(value);
+                case (#Ok(null)) #Err(#InvalidDate("Unable to determine weekend status"));
+                case (#Err(e)) #Err(e);
+            };
+        };
+
+        public func cloneDate(date : Types.Date) : async Types.Result<Types.Date> {
+            DateUtils.cloneDate(date);
+        };
     };
 };

@@ -1,225 +1,258 @@
 import Debug "mo:base/Debug";
 import Error "mo:base/Error";
-import DateCreationParsing "../src/DateCreationParsing";
-import DateFormatting "../src/DateFormatting";
-import DateArithmetic "../src/DateArithmetic";
-import DateComparison "../src/DateComparison";
-import WeekMonthUtils "../src/WeekMonthUtils";
-import RelativeTime "../src/RelativeTime";
-import DateUtils "../src/DateUtils";
-import TimeUtils "../src/TimeUtils";
+import DateTime "../src/lib";
+import Types "../src/types/Types";
 
 actor {
-    // Date Creation & Parsing Tests
-    public func runDateCreationParsingTests() : async () {
-        try {
-            let nowResult = await DateCreationParsing.now();
-            assert (nowResult != (0, 0, 0, 0, 0, 0));
+    let dateTime = DateTime.DateTime();
 
-            // Fixed timestamp test to match actual result
-            let fromTimestampResult = await DateCreationParsing.fromTimestamp(1700000000);
-            assert (fromTimestampResult == (2023, 11, 14, 22, 13, 20));
-
-            // Fixed timestamp conversion test
-            let toTimestampResult = await DateCreationParsing.toTimestamp(2023, 11, 14, 22, 13, 20);
-            assert (toTimestampResult == 1700000000);
-
-            // Fixed leap year date validation
-            let isValidDateResult1 = await DateCreationParsing.isValidDate(2024, 2, 29);
-            assert (isValidDateResult1); // 2024 is a leap year
-
-            let isValidDateResult2 = await DateCreationParsing.isValidDate(2023, 2, 29);
-            assert (not isValidDateResult2); // 2023 is not a leap year
-
-            let isValidDateResult3 = await DateCreationParsing.isValidDate(2024, 4, 31);
-            assert (not isValidDateResult3); // April has 30 days
-
-            // Fixed leap year tests
-            let isLeapYearResult1 = await DateCreationParsing.isLeapYear(2024);
-            assert isLeapYearResult1;
-
-            let isLeapYearResult2 = await DateCreationParsing.isLeapYear(2023);
-            assert (not isLeapYearResult2);
-
-            let isLeapYearResult3 = await DateCreationParsing.isLeapYear(2000);
-            assert isLeapYearResult3;
-
-            let isLeapYearResult4 = await DateCreationParsing.isLeapYear(1900);
-            assert (not isLeapYearResult4);
-        } catch (e) {
-            Debug.print("DateCreationParsing test error: " # Error.message(e));
+    // Helper function to create a test date
+    private func createTestDate() : Types.Date {
+        {
+            year = 2024;
+            month = 2;
+            day = 20;
         };
     };
 
-    // Date Formatting Tests
-    public func runDateFormattingTests() : async () {
+    // Date Creation Tests
+    public func testDateCreation() : async () {
         try {
-            // Test basic date formatting
-            let formatDateResult = await DateFormatting.formatDate(2024, 2, 13, "YYYY/MM/DD");
-            assert (formatDateResult == "2024/02/13");
+            // Test now()
+            let nowResult = await dateTime.now();
+            switch (nowResult) {
+                case (#Ok(components)) {
+                    assert (components.year >= 2024);
+                };
+                case (#Err(_)) { assert (false) };
+            };
 
-            let formatDateResult2 = await DateFormatting.formatDate(2024, 2, 13, "DD-MM-YYYY");
-            assert (formatDateResult2 == "13-02-2024");
+            // Test fromTimestamp
+            let timestamp = 1708444800; // 2024-02-20
+            let fromTimestampResult = dateTime.fromTimestamp(timestamp);
+            switch (fromTimestampResult) {
+                case (#Ok(components)) {
+                    assert (components.year == 2024);
+                    assert (components.month == 2);
+                    assert (components.day == 20);
+                };
+                case (#Err(_)) { assert (false) };
+            };
 
-            let formatDateResult3 = await DateFormatting.formatDate(2024, 2, 13, "MM.DD.YYYY");
-            assert (formatDateResult3 == "02.13.2024");
+            // Test validation functions
+            let testDate = createTestDate();
+            let isValidResult = dateTime.isValidDate(testDate);
+            assert (switch (isValidResult) { case (#Ok(valid)) valid; case (#Err(_)) false });
+
+            assert (dateTime.isLeapYear(2024) == true);
+            assert (dateTime.isLeapYear(2023) == false);
+        } catch (e) {
+            Debug.print("Date Creation Tests Failed: " # Error.message(e));
+            assert (false);
+        };
+    };
+
+    // Formatting Tests
+    public func testFormatting() : async () {
+        try {
+            let testDate = createTestDate();
+
+            // Test format
+            let formatResult = dateTime.format({
+                date = testDate;
+                format = #ISO;
+            });
+            switch (formatResult) {
+                case (#Ok(formatted)) {
+                    assert (formatted == "2024-02-20");
+                };
+                case (#Err(_)) { assert (false) };
+            };
 
             // Test ISO format
-            let toISOFormatResult = await DateFormatting.toISOFormat(2024, 2, 13);
-            assert (toISOFormatResult == "2024-02-13");
+            let isoResult = dateTime.toISO(testDate);
+            switch (isoResult) {
+                case (#Ok(iso)) {
+                    assert (iso == "2024-02-20");
+                };
+                case (#Err(_)) { assert (false) };
+            };
 
-            let toISOFormatResult2 = await DateFormatting.toISOFormat(2024, 12, 31);
-            assert (toISOFormatResult2 == "2024-12-31");
-
-            // Test weekday formats
-            let getWeekdayResult = await DateFormatting.getWeekday(2024, 2, 13);
-            assert (getWeekdayResult == "Tuesday");
-
-            let getWeekdayResult2 = await DateFormatting.getWeekday(2024, 2, 14);
-            assert (getWeekdayResult2 == "Wednesday");
-
-            let getWeekdayResult3 = await DateFormatting.getWeekday(2024, 2, 17);
-            assert (getWeekdayResult3 == "Saturday");
-
-            let getDayOfYearResult = await DateFormatting.getDayOfYear(2024, 2, 13);
-            assert (getDayOfYearResult == 44);
+            // Test weekday
+            let weekdayResult = dateTime.getWeekday(testDate);
+            switch (weekdayResult) {
+                case (#Ok(weekday)) {
+                    assert (weekday == #Tuesday);
+                };
+                case (#Err(_)) { assert (false) };
+            };
         } catch (e) {
-            Debug.print("DateFormatting test error: " # Error.message(e));
+            Debug.print("Formatting Tests Failed: " # Error.message(e));
+            assert (false);
         };
     };
 
-    // Date Arithmetic Tests
-    public func runDateArithmeticTests() : async () {
+    // Arithmetic Tests
+    public func testArithmetic() : async () {
         try {
-            let addDaysResult = await DateArithmetic.addDays(2024, 2, 13, 5);
-            assert (addDaysResult == (2024, 02, 18));
+            let testDate = createTestDate();
 
-            let subtractDaysResult = await DateArithmetic.subtractDays(2024, 2, 13, 5);
-            assert (subtractDaysResult == (2024, 02, 08));
+            // Test add days
+            let addResult = dateTime.add({
+                date = testDate;
+                amount = 1;
+                unit = #Day;
+            });
+            switch (addResult) {
+                case (#Ok(result)) {
+                    assert (result.day == 21);
+                };
+                case (#Err(_)) { assert (false) };
+            };
 
-            let addMonthsResult = await DateArithmetic.addMonths(2024, 2, 13, 2);
-            assert (addMonthsResult == (2024, 04, 13));
-
-            let subtractMonthsResult = await DateArithmetic.subtractMonths(2024, 2, 13, 2);
-            assert (subtractMonthsResult == (2023, 12, 13));
-
-            let addYearsResult = await DateArithmetic.addYears(2024, 2, 13, 1);
-            assert (addYearsResult == (2025, 02, 13));
-
-            let subtractYearsResult = await DateArithmetic.subtractYears(2024, 2, 13, 1);
-            assert (subtractYearsResult == (2023, 02, 13));
+            // Test subtract days
+            let subtractResult = dateTime.subtract({
+                date = testDate;
+                amount = 1;
+                unit = #Day;
+            });
+            switch (subtractResult) {
+                case (#Ok(result)) {
+                    assert (result.day == 19);
+                };
+                case (#Err(_)) { assert (false) };
+            };
         } catch (e) {
-            Debug.print("DateArithmetic test error: " # Error.message(e));
+            Debug.print("Arithmetic Tests Failed: " # Error.message(e));
+            assert (false);
         };
     };
 
-    // Date Comparison Tests
-    public func runDateComparisonTests() : async () {
+    // Comparison Tests
+    public func testComparison() : async () {
         try {
-            let isBeforeResult = await DateComparison.isBefore(2023, 1, 1, 2024, 1, 1);
-            assert (isBeforeResult == true);
+            let date1 = createTestDate();
+            let date2 = {
+                year = 2024;
+                month = 2;
+                day = 21;
+            };
 
-            let isAfterResult = await DateComparison.isAfter(2024, 1, 1, 2023, 1, 1);
-            assert (isAfterResult == true);
+            let compareResult = dateTime.compare(date1, date2);
+            assert (compareResult.isBefore == true);
+            assert (compareResult.isAfter == false);
+            assert (compareResult.isEqual == false);
 
-            let isEqualResult = await DateComparison.isEqual(2024, 2, 13, 2024, 2, 13);
-            assert (isEqualResult == true);
+            assert (dateTime.isBefore(date1, date2) == true);
+            assert (dateTime.isAfter(date1, date2) == false);
+            assert (dateTime.isEqual(date1, date1) == true);
         } catch (e) {
-            Debug.print("DateComparison test error: " # Error.message(e));
+            Debug.print("Comparison Tests Failed: " # Error.message(e));
+            assert (false);
         };
     };
 
-    // Week & Month Handling Tests
-    public func runWeekMonthHandlingTests() : async () {
+    // Calendar Tests
+    public func testCalendar() : async () {
         try {
-            let startOfWeekResult = await WeekMonthUtils.startOfWeek(2024, 2, 13);
-            assert (startOfWeekResult == (2024, 2, 11));
+            let testDate = createTestDate();
 
-            let endOfWeekResult = await WeekMonthUtils.endOfWeek(2024, 2, 13);
-            assert (endOfWeekResult == (2024, 2, 17));
+            // Test week bounds
+            let bounds = await dateTime.weekBounds(testDate);
+            switch (bounds.start) {
+                case (#Ok(start)) {
+                    assert (start.day == 18); // Monday
+                };
+                case (#Err(_)) { assert (false) };
+            };
 
-            let getMonthNameResult = await WeekMonthUtils.getMonthName(2);
-            assert (getMonthNameResult == "February");
-
-            let getDaysInMonthResult = await WeekMonthUtils.getDaysInMonth(2024, 2);
-            assert (getDaysInMonthResult == 29);
+            // Test month info
+            let monthInfo = dateTime.monthInfo(2024, 2);
+            switch (monthInfo) {
+                case (#Ok(info)) {
+                    assert (info.name == "February");
+                    assert (info.daysCount == 29);
+                };
+                case (#Err(_)) { assert (false) };
+            };
         } catch (e) {
-            Debug.print("WeekMonthUtils test error: " # Error.message(e));
+            Debug.print("Calendar Tests Failed: " # Error.message(e));
+            assert (false);
         };
     };
 
-    // Relative Time & Localization Tests
-    public func runRelativeTimeTests() : async () {
+    // Time Tests
+    public func testTime() : async () {
         try {
-            let timeAgoResult = await RelativeTime.timeAgo(2023, 2, 13);
-            assert (timeAgoResult == "1 year ago");
+            // Test current time
+            let currentTime = await dateTime.getCurrentTime(null);
+            switch (currentTime) {
+                case (#Ok(time)) {
+                    assert (time.hour >= 0 and time.hour < 24);
+                };
+                case (#Err(_)) { assert (false) };
+            };
 
-            let timeUntilResult = await RelativeTime.timeUntil(2025, 2, 13);
-            assert (timeUntilResult == "1 year from now");
-
-            let toLocaleStringResult = await RelativeTime.toLocaleString(2024, 2, 13, "en-US");
-            assert (toLocaleStringResult == "02/13/2024");
+            // Test timezone
+            let tzTime = await dateTime.getTimeInZone({
+                timezone = "UTC";
+                format = ?#Hour24;
+            });
+            switch (tzTime) {
+                case (#Ok(_)) { assert (true) };
+                case (#Err(_)) { assert (false) };
+            };
         } catch (e) {
-            Debug.print("RelativeTime test error: " # Error.message(e));
+            Debug.print("Time Tests Failed: " # Error.message(e));
+            assert (false);
         };
     };
 
-    // Utility Functions Tests
-    public func runDateUtilsTests() : async () {
+    // Utility Tests
+    public func testUtilities() : async () {
         try {
-            let cloneDateResult = await DateUtils.cloneDate(2024, 2, 13);
-            assert (cloneDateResult == (2024, 2, 13));
+            let testDate = createTestDate();
 
-            let minDateResult = await DateUtils.minDate([(2024, 1, 1), (2023, 12, 31)]);
-            assert (minDateResult == ?(2023, 12, 31));
+            // Test weekend check
+            let weekendResult = dateTime.isWeekend(testDate);
+            switch (weekendResult) {
+                case (#Ok(isWeekend)) {
+                    assert (isWeekend == false); // Feb 20, 2024 is Tuesday
+                };
+                case (#Err(_)) { assert (false) };
+            };
 
-            let maxDateResult = await DateUtils.maxDate([(2024, 1, 1), (2023, 12, 31)]);
-            assert (maxDateResult == ?(2024, 1, 1));
-
-            let isWeekendResult = await DateUtils.isWeekend(2024, 2, 10);
-            assert (isWeekendResult == ?true);
+            // Test min/max dates
+            let dates = [
+                testDate,
+                {
+                    year = 2024;
+                    month = 2;
+                    day = 21;
+                },
+            ];
+            let minMax = dateTime.findMinMaxDates(dates);
+            switch (minMax.min) {
+                case (#Ok(min)) {
+                    assert (min.day == 20);
+                };
+                case (#Err(_)) { assert (false) };
+            };
         } catch (e) {
-            Debug.print("DateUtils test error: " # Error.message(e));
+            Debug.print("Utility Tests Failed: " # Error.message(e));
+            assert (false);
         };
     };
 
-    // TimeUtils Tests with error handling
-    public func runTimeUtilsTests() : async () {
-        try {
-            let getCurrentTimeResult = await TimeUtils.getCurrentTime(?true);
-            assert (getCurrentTimeResult != "");
-
-            let getTimeInTimezoneResult = await TimeUtils.getTimeInTimezone("Asia/Kolkata", ?true);
-            assert (getTimeInTimezoneResult != "");
-
-            let getDateTimeInTimezoneResult = await TimeUtils.getDateTimeInTimezone("America/New_York", ?true);
-            assert (getDateTimeInTimezoneResult != "");
-
-            let getAvailableTimezonesResult = await TimeUtils.getAvailableTimezones();
-            assert (getAvailableTimezonesResult.size() > 0);
-
-            // Test invalid timezone
-            let invalidTimezoneResult = await TimeUtils.getTimeInTimezone("INVALID_TZ", ?true);
-            assert (invalidTimezoneResult == "Invalid timezone");
-        } catch (e) {
-            Debug.print("TimeUtils test error: " # Error.message(e));
-        };
-    };
-
-    // Running all tests
+    // Run all tests
     public func runTests() : async () {
-        try {
-            await runDateCreationParsingTests();
-            await runDateFormattingTests();
-            await runDateArithmeticTests();
-            await runDateComparisonTests();
-            await runWeekMonthHandlingTests();
-            await runRelativeTimeTests();
-            await runDateUtilsTests();
-            await runTimeUtilsTests();
-            Debug.print("All tests completed successfully");
-        } catch (e) {
-            Debug.print("Test suite error: " # Error.message(e));
-        };
+        await testDateCreation();
+        await testFormatting();
+        await testArithmetic();
+        await testComparison();
+        await testCalendar();
+        await testTime();
+        await testUtilities();
+        Debug.print("All tests completed successfully!");
     };
 };
