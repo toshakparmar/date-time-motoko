@@ -43,14 +43,15 @@ To install and use this package, follow these steps:
 2. **Import the Package**:
 
    ```motoko
-   // import the package
-   import DateTime "mo:date-time";
+    import DateTime "mo:date-time";
 
-    // Create the object of the package
-   let date = DateTime.DateTime();
-
-   // Now you can call each and every function.
-   let currentDateTime = date.now();
+    actor {
+        public func testNow() : async Text {
+            let now = DateTime.now();
+            Debug.print("Current time: " # now);
+            return now;
+        };
+    };
 
    ```
 
