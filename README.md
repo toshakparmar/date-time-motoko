@@ -1,4 +1,4 @@
-# Date and Time Utilities Mops Package
+# Date and Time Utility Mops Package
 
 ## Overview
 
@@ -34,17 +34,28 @@ This package is ideal for:
 To install and use this package, follow these steps:
 
 1. **Install the Mops Package**:
+
    - Add this package as a dependency in your project by using the appropriate package manager for Motoko.
+   - ```motoko
+     mops add date-time
+     ```
+
+   ```
+
+   ```
+
 2. **Import the Package**:
+
    ```motoko
-   import DateCreationParsing "./DateCreationParsing";
-   import DateFormatting "./DateFormatting";
-   import DateArithmetic "./DateArithmetic";
-   import DateComparison "./DateComparison";
-   import WeekMonthHandling "./WeekMonthUtils";
-   import RelativeTime "./RelativeTime";
-   import DateUtils "./DateUtils";
-   import TimeUtils "./TimeUtils";
+   // import the package
+   import DateTime "mo:date-time";
+
+    // Create the object of the package
+   let date = DateTime.DateTime();
+
+   // Now you can call each and every function.
+   let currentDateTime = date.now();
+
    ```
 
 ---
@@ -56,20 +67,29 @@ You can call the functions as needed for different date and time operations. Her
 ```motoko
 actor {
 
+    // Define Date type
+    public type Date = {
+        year: Int;
+        month: Int;
+        day: Int;
+    };
+
+    // Function get the current date & time..
     public func now() : async Text {
-        let currentTime = await DateCreationParsing.now();
-        let (year, month, day, hour, minute, second) = currentTime;
-        return "Current time: " # Int.toText(year) # "-" # Int.toText(month) # "-" # Int.toText(day) # " " # Int.toText(hour) # ":" # Int.toText(minute) # ":" # Int.toText(second);
+        date.now();
     };
 
-    public func addDays({ year : Nat; month : Nat; day : Nat; n : Nat }) : async Date {
-        return await DateArithmetic.addDays(year, month, day, n);
+    // Add the Day/Month/Year/Time etc..
+    public func add(date: Date, n: Int, unit: #Day): Date {
+        date.addDays(date, n, unit);
+    }
+
+    // Check the Date is vaild or not..
+    public func isValidDate(date: Date) : Bool {
+        date.isValidDate(date);
     };
 
-    public func isValidDate({ year : Int; month : Int; day : Int }) : async Bool {
-        return await DateCreationParsing.isValidDate(year, month, day);
-    };
-
+    // For more information checkout the docs...
 };
 ```
 
@@ -77,7 +97,7 @@ actor {
 
 ## Function Overview
 
-### Date Creation and Parsing
+### Date Creation
 
 - **now**: Retrieves the current date and time.
 - **fromTimestamp**: Converts a Unix timestamp to a date.
@@ -85,15 +105,17 @@ actor {
 - **isValidDate**: Checks if a date is valid.
 - **isLeapYear**: Determines if a year is a leap year.
 
-### Date Formatting
+### Date Formatt
 
 - **formatDate**: Formats a date into a specific format.
 - **toISOFormat**: Converts a date to ISO 8601 format.
 - **getWeekday**: Returns the weekday name for a given date.
 - **getDayOfYear**: Returns the day of the year for a given date.
 
-### Date Arithmetic
+### Arithmetic
 
+- **addTime**: Adds a specified time to a current time or specified time.
+- **subtractTime**: Subtracts a specified time to a current time or specified time.
 - **addDays**: Adds a specified number of days to a date.
 - **subtractDays**: Subtracts a specified number of days from a date.
 - **addMonths**: Adds a specified number of months to a date.
@@ -103,34 +125,34 @@ actor {
 - **startOfDay**: Retrieves the start of the day for a date.
 - **endOfDay**: Retrieves the end of the day for a date.
 
-### Date Comparison
+### Comparision
 
 - **isBefore**: Checks if one date is before another.
 - **isAfter**: Checks if one date is after another.
 - **isEqual**: Checks if two dates are equal.
 - **dateDifference**: Calculates the difference between two dates in a specified unit (days, months, years, etc.).
 
-### Week and Month Handling
+### Calendar Utils
 
 - **startOfWeek**: Returns the start date of the week.
 - **endOfWeek**: Returns the end date of the week.
 - **getMonthName**: Retrieves the name of a given month.
 - **getDaysInMonth**: Returns the number of days in a month for a specific year.
 
-### Relative Time
+### Relative
 
 - **timeUntil**: Returns a string describing the time until a given date.
 - **toLocaleString**: Converts a date to a locale-specific string.
 - **timeAgo**: Returns a string describing how long ago a date was.
 
-### Date Utilities
+### Date Utils
 
 - **cloneDate**: Creates a clone of a given date.
 - **minDate**: Finds the earliest date from a list of dates.
 - **maxDate**: Finds the latest date from a list of dates.
 - **isWeekend**: Checks if a date falls on a weekend.
 
-### Time Utilities
+### Time Utils
 
 - **getCurrentTime**: Retrieves the current time, optionally in 12-hour format.
 - **getTimeInTimezone**: Retrieves the current time in a specified timezone.
@@ -148,3 +170,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Conclusion
 
 This Mops package provides a versatile and comprehensive set of date and time utilities, perfect for handling all your time-related needs. Whether you need simple date formatting or complex date arithmetic, this package makes it easy to work with dates in Motoko.
+
+## Author - Toshak Parmar (@Codesmachers)
+
+### Contact Details -
+
+#### Email - toshakparmar2000@gmail.com
+
+#### Portfolio - https://codesmachers.netlify.app/
+
+#### Linkdin - https://www.linkedin.com/in/toshak-parmar-codesmachers-673968263/
+
+#### Github - https://github.com/toshakparmar
